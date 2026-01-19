@@ -28,7 +28,7 @@ from pathlib import Path
 
 import jwt
 import psutil
-from flask import Flask, jsonify, request, send_file, send_from_directory
+from flask import Flask, jsonify, request, send_file, send_from_directory, Response
 from flask_cors import CORS
 
 # Ensure local imports work even if working directory changes
@@ -6353,15 +6353,21 @@ def execute_script():
         script_name = data.get('script_name')
         script_params = data.get('params', {})
         
-        # Map script names to file paths
-        script_map = {
-            'nvidia_installer': '/usr/local/share/proxmenux/scripts/gpu_tpu/nvidia_installer.sh',
-        }
-        
-        if script_name not in script_map:
-            return jsonify({'success': False, 'error': 'Unknown script'}), 400
-        
-        script_path = script_map[script_name]
+
+        script_relative_path = data.get('script_relative_path')
+
+        if not script_relative_path:
+            return jsonify({'error': 'script_relative_path is required'}), 400
+
+
+        BASE_SCRIPTS_DIR = '/usr/local/share/proxmenux/scripts'
+        script_path = os.path.join(BASE_SCRIPTS_DIR, script_relative_path)
+
+
+        script_path = os.path.abspath(script_path)
+        if not script_path.startswith(BASE_SCRIPTS_DIR):
+            return jsonify({'error': 'Invalid script path'}), 403
+
         
         if not os.path.exists(script_path):
             return jsonify({'success': False, 'error': 'Script file not found'}), 404
@@ -6436,4 +6442,4 @@ if __name__ == '__main__':
     # Print only essential information
     # print("API endpoints available at: /api/system, /api/system-info, /api/storage, /api/proxmox-storage, /api/network, /api/vms, /api/logs, /api/health, /api/hardware, /api/prometheus, /api/node/metrics")
     
-    app.run(host='0.0.0.0', port=8009, debug=False)
+    app.run(host='0.0.0.0', port=8008, debug=False)

@@ -2,8 +2,7 @@
 
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
-import { API_PORT } from "../lib/api-config"
-import { fetchApi } from "@/lib/api-config" // Cambiando import para usar fetchApi directamente
+import { API_PORT, fetchApi } from "@/lib/api-config" // Unificando importaciones de api-config en una sola línea con alias @/
 import {
   Activity,
   Trash2,
@@ -427,7 +426,6 @@ export const TerminalPanel: React.FC<TerminalPanelProps> = ({ websocketUrl, onCl
       setTerminals((prev) =>
         prev.map((t) => (t.id === terminal.id ? { ...t, isConnected: true, term, ws, fitAddon } : t)),
       )
-      term.writeln("\x1b[32mConnected to ProxMenux terminal.\x1b[0m")
       syncSizeWithBackend()
     }
 
@@ -502,6 +500,9 @@ export const TerminalPanel: React.FC<TerminalPanelProps> = ({ websocketUrl, onCl
         break
       case "CTRL_C":
         seq = "\x03"
+        break
+      case "ENTER":
+        seq = "\r"
         break
       default:
         break
@@ -737,7 +738,7 @@ export const TerminalPanel: React.FC<TerminalPanelProps> = ({ websocketUrl, onCl
       )}
 
       {(isMobile || isTablet) && (
-        <div className="flex flex-wrap gap-2 justify-center items-center px-2 bg-zinc-900 text-sm rounded-b-md border-t border-zinc-700 py-1.5">
+        <div className="flex flex-wrap gap-1.5 justify-center items-center px-1 bg-zinc-900 text-sm rounded-b-md border-t border-zinc-700 py-1.5">
           <Button
             onPointerDown={(e) => {
               e.preventDefault()
@@ -746,7 +747,7 @@ export const TerminalPanel: React.FC<TerminalPanelProps> = ({ websocketUrl, onCl
             }}
             variant="outline"
             size="sm"
-            className="h-8 px-3 text-xs"
+            className="h-8 px-2.5 text-xs"
           >
             ESC
           </Button>
@@ -758,7 +759,7 @@ export const TerminalPanel: React.FC<TerminalPanelProps> = ({ websocketUrl, onCl
             }}
             variant="outline"
             size="sm"
-            className="h-8 px-3 text-xs"
+            className="h-8 px-2.5 text-xs"
           >
             TAB
           </Button>
@@ -814,11 +815,23 @@ export const TerminalPanel: React.FC<TerminalPanelProps> = ({ websocketUrl, onCl
             onPointerDown={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              sendSequence("\x03", e)
+              handleKeyButton("ENTER", e)
             }}
             variant="outline"
             size="sm"
             className="h-8 px-3 text-xs"
+          >
+            ↵
+          </Button>
+          <Button
+            onPointerDown={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              sendSequence("\x03", e)
+            }}
+            variant="outline"
+            size="sm"
+            className="h-8 px-2 text-xs"
           >
             CTRL+C
           </Button>

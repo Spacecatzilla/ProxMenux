@@ -5,19 +5,21 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
-  Thermometer,
-  CpuIcon,
-  Zap,
-  HardDrive,
-  Network,
-  FanIcon,
-  PowerIcon,
-  Battery,
   Cpu,
-  MemoryStick,
-  Cpu as Gpu,
+  HardDrive,
+  Thermometer,
+  Zap,
   Loader2,
+  CpuIcon,
+  Cpu as Gpu,
+  Network,
+  MemoryStick,
+  PowerIcon,
+  FanIcon,
+  Battery,
 } from "lucide-react"
+import { Download } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import useSWR from "swr"
 import { useState, useEffect } from "react"
 import {
@@ -28,6 +30,7 @@ import {
   fetcher as swrFetcher,
 } from "../types/hardware"
 import { fetchApi } from "@/lib/api-config"
+import { ScriptTerminalModal } from "./script-terminal-modal"
 
 const parseLsblkSize = (sizeStr: string | undefined): number => {
   if (!sizeStr) return 0
@@ -236,6 +239,8 @@ export default function Hardware() {
   const [selectedDisk, setSelectedDisk] = useState<StorageDevice | null>(null)
   const [selectedNetwork, setSelectedNetwork] = useState<PCIDevice | null>(null)
   const [selectedUPS, setSelectedUPS] = useState<any>(null)
+  const [showNvidiaInstaller, setShowNvidiaInstaller] = useState(false)
+  const [installingNvidiaDriver, setInstallingNvidiaDriver] = useState(false)
 
   const fetcher = async (url: string) => {
     const data = await fetchApi(url)
@@ -246,11 +251,16 @@ export default function Hardware() {
     data: hardwareDataSWR,
     error: swrError,
     isLoading: swrLoading,
-    mutate,
+    mutate: mutateHardware,
   } = useSWR<HardwareData>("/api/hardware", fetcher, {
     refreshInterval: 30000,
     revalidateOnFocus: false,
   })
+
+  const handleInstallNvidiaDriver = () => {
+    console.log("[v0] Opening NVIDIA installer terminal")
+    setShowNvidiaInstaller(true)
+  }
 
   useEffect(() => {
     if (!selectedGPU) return
@@ -778,13 +788,7 @@ export default function Hardware() {
       )}
 
       {/* GPU Detail Modal - Shows immediately with basic info, then loads real-time data */}
-      <Dialog
-        open={selectedGPU !== null}
-        onOpenChange={() => {
-          setSelectedGPU(null)
-          setRealtimeGPUData(null)
-        }}
-      >
+      <Dialog open={!!selectedGPU} onOpenChange={(open) => !open && setSelectedGPU(null)}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           {selectedGPU && (
             <>
@@ -1090,11 +1094,22 @@ export default function Hardware() {
                           />
                         </svg>
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <h4 className="text-sm font-semibold text-blue-500 mb-1">Extended Monitoring Not Available</h4>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground mb-3">
                           {getMonitoringToolRecommendation(selectedGPU.vendor)}
                         </p>
+                        {selectedGPU.vendor.toLowerCase().includes("nvidia") && (
+                          <Button
+                            onClick={handleInstallNvidiaDriver}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            <>
+                              <Download className="mr-2 h-4 w-4" />
+                              Install NVIDIA Drivers
+                            </>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1104,7 +1119,6 @@ export default function Hardware() {
           )}
         </DialogContent>
       </Dialog>
-
 
       {/* Power Consumption */}
       {hardwareDataSWR?.power_meter && (
@@ -1440,31 +1454,31 @@ export default function Hardware() {
                   <div className="grid gap-2">
                     {selectedUPS.manufacturer && (
                       <div className="flex justify-between border-b border-border/50 pb-2">
-                        <span className="text-sm text-muted-foreground">Manufacturer</span>
+                        <span className="text-sm font-medium text-muted-foreground">Manufacturer</span>
                         <span className="text-sm font-medium">{selectedUPS.manufacturer}</span>
                       </div>
                     )}
                     {selectedUPS.model && (
                       <div className="flex justify-between border-b border-border/50 pb-2">
-                        <span className="text-sm text-muted-foreground">Model</span>
+                        <span className="text-sm font-medium text-muted-foreground">Model</span>
                         <span className="text-sm font-medium">{selectedUPS.model}</span>
                       </div>
                     )}
                     {selectedUPS.serial && (
                       <div className="flex justify-between border-b border-border/50 pb-2">
-                        <span className="text-sm text-muted-foreground">Serial Number</span>
+                        <span className="text-sm font-medium text-muted-foreground">Serial Number</span>
                         <span className="font-mono text-sm">{selectedUPS.serial}</span>
                       </div>
                     )}
                     {selectedUPS.firmware && (
                       <div className="flex justify-between border-b border-border/50 pb-2">
-                        <span className="text-sm text-muted-foreground">Firmware</span>
+                        <span className="text-sm font-medium text-muted-foreground">Firmware</span>
                         <span className="text-sm font-medium">{selectedUPS.firmware}</span>
                       </div>
                     )}
                     {selectedUPS.driver && (
                       <div className="flex justify-between border-b border-border/50 pb-2">
-                        <span className="text-sm text-muted-foreground">Driver</span>
+                        <span className="text-sm font-medium text-muted-foreground">Driver</span>
                         <span className="font-mono text-sm text-green-500">{selectedUPS.driver}</span>
                       </div>
                     )}
@@ -1475,8 +1489,6 @@ export default function Hardware() {
           )}
         </DialogContent>
       </Dialog>
-
-
 
       {/* PCI Devices - Changed to modal */}
       {hardwareDataSWR?.pci_devices && hardwareDataSWR.pci_devices.length > 0 && (
@@ -1563,8 +1575,6 @@ export default function Hardware() {
           )}
         </DialogContent>
       </Dialog>
-
-
 
       {/* Network Summary - Clickable */}
       {hardwareDataSWR?.pci_devices &&
@@ -2011,6 +2021,37 @@ export default function Hardware() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* NVIDIA Installation Monitor */}
+      {/* <HybridScriptMonitor
+        sessionId={nvidiaSessionId}
+        title="NVIDIA Driver Installation"
+        description="Installing NVIDIA proprietary drivers for GPU monitoring..."
+        onClose={() => {
+          setNvidiaSessionId(null)
+          mutateHardware()
+        }}
+        onComplete={(success) => {
+          console.log("[v0] NVIDIA installation completed:", success ? "success" : "failed")
+          if (success) {
+            mutateHardware()
+          }
+        }}
+      /> */}
+      <ScriptTerminalModal
+        open={showNvidiaInstaller}
+        onClose={() => {
+          setShowNvidiaInstaller(false)
+          mutateHardware()
+        }}
+        scriptPath="/usr/local/share/proxmenux/scripts/gpu_tpu/nvidia_installer.sh"
+        scriptName="nvidia_installer"
+        params={{
+          EXECUTION_MODE: "web",
+        }}
+        title="NVIDIA Driver Installation"
+        description="Installing NVIDIA proprietary drivers for GPU monitoring..."
+      />
     </div>
   )
 }
