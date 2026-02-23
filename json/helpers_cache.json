@@ -807,10 +807,13 @@
       4
     ],
     "notes": [
-      "No credentials are set by this script. Complete setup and create credentials in the first-run wizard.",
       "Upload your Calibre library metadata.db during first setup wizard."
     ],
-    "type": "ct"
+    "type": "ct",
+    "default_credentials": {
+      "username": "admin",
+      "password": "admin123"
+    }
   },
   {
     "name": "CasaOS",
@@ -2685,20 +2688,6 @@
       "A backup is rendered ineffective when it remains stored on the host"
     ],
     "type": "pve"
-  },
-  {
-    "name": "Huntarr",
-    "slug": "huntarr",
-    "desc": "Huntarr is a tool that automates the search for missing or low-quality media content in your collection. It works seamlessly with applications like Sonarr, Radarr, Lidarr, Readarr, and Whisparr, enhancing their functionality with continuous background scans to identify and update missed or outdated content. Through a user-friendly web interface accessible on port 9705, Huntarr provides real-time statistics, log views, and extensive configuration options. The software is especially useful for users who want to keep their media library up to date by automatically searching for missing episodes or higher-quality versions. Huntarr is well-suited for self-hosted environments and can easily run in LXC containers or Docker setups.",
-    "script": "ct/huntarr.sh",
-    "script_url": "https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/huntarr.sh",
-    "script_url_mirror": "https://git.community-scripts.org/community-scripts/ProxmoxVE/raw/branch/main/ct/huntarr.sh",
-    "os": "debian",
-    "categories": [
-      14
-    ],
-    "notes": [],
-    "type": "ct"
   },
   {
     "name": "HyperHDR",
@@ -6535,6 +6524,20 @@
     "os": "debian",
     "categories": [
       14
+    ],
+    "notes": [],
+    "type": "ct"
+  },
+  {
+    "name": "SparkyFitness",
+    "slug": "sparkyfitness",
+    "desc": "A self-hosted, privacy-first alternative to MyFitnessPal. Track nutrition, exercise, body metrics, and health data while keeping full control of your data.",
+    "script": "ct/sparkyfitness.sh",
+    "script_url": "https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/sparkyfitness.sh",
+    "script_url_mirror": "https://git.community-scripts.org/community-scripts/ProxmoxVE/raw/branch/main/ct/sparkyfitness.sh",
+    "os": "debian",
+    "categories": [
+      9
     ],
     "notes": [],
     "type": "ct"
