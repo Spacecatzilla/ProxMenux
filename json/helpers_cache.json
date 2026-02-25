@@ -4828,7 +4828,9 @@
     "categories": [
       25
     ],
-    "notes": [],
+    "notes": [
+      "If you want to update from v15.x to v17.x, please read `https://www.openproject.org/docs/installation-and-operations/operation/upgrading/#major-upgrades` before doing so."
+    ],
     "type": "ct",
     "default_credentials": {
       "username": "admin",
@@ -8161,6 +8163,22 @@
       25
     ],
     "notes": [],
+    "type": "ct"
+  },
+  {
+    "name": "Zerobyte",
+    "slug": "zerobyte",
+    "desc": "Zerobyte is a backup automation tool built on top of Restic that provides a modern web interface to schedule, manage, and monitor encrypted backups across multiple storage backends including NFS, SMB, WebDAV, SFTP, S3, and local directories.",
+    "script": "ct/zerobyte.sh",
+    "script_url": "https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/zerobyte.sh",
+    "script_url_mirror": "https://git.community-scripts.org/community-scripts/ProxmoxVE/raw/branch/main/ct/zerobyte.sh",
+    "os": "debian",
+    "categories": [
+      7
+    ],
+    "notes": [
+      "For remote mount support (NFS, SMB, WebDAV, SFTP), enable FUSE device passthrough on the LXC container. (FUSE is pre-configured)"
+    ],
     "type": "ct"
   },
   {
