@@ -5,7 +5,7 @@
 # ==========================================================
 # Author      : MacRimi
 # Copyright   : (c) 2024 MacRimi
-# License     : (CC BY-NC 4.0) (https://github.com/MacRimi/ProxMenux/blob/main/LICENSE)
+# License     : (GPL-3.0) (https://github.com/MacRimi/ProxMenux/blob/main/LICENSE)
 # Version     : 1.0
 # Last Updated: 28/01/2025
 # ==========================================================
@@ -111,6 +111,16 @@ cleanup() {
         printf "\r\033[K"    
         printf "\e[?25h"
     fi
+}
+
+stop_spinner() {
+    if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID > /dev/null 2>&1; then
+        kill $SPINNER_PID > /dev/null 2>&1
+        wait $SPINNER_PID 2>/dev/null
+    fi
+    printf "\r\033[K"  
+    printf "\e[?25h"   
+    SPINNER_PID=""
 }
 
 # Display trnaslate message with spinner
